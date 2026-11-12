@@ -1,0 +1,1457 @@
+<!DOCTYPE html>
+<html lang="uz" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Espresso Craft — Premium Coffee & Bakery</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        espresso: '#2C1810',
+                        'espresso-dark': '#1A0E0A',
+                        caramel: '#D4A373',
+                        'caramel-hover': '#C08D5D',
+                        cream: '#FAF6F0',
+                        beige: '#F5EBE0',
+                        charcoal: '#1A1A1A'
+                    },
+                    fontFamily: {
+                        serif: ['Playfair Display', 'Georgia', 'serif'],
+                        sans: ['Inter', 'system-ui', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        h1, h2, h3, .font-serif-heading {
+            font-family: 'Playfair Display', Georgia, serif;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .nav-link.active {
+            color: #D4A373;
+            font-weight: 600;
+        }
+        .nav-link.active::after {
+            content: '';
+            display: block;
+            width: 100%;
+            height: 2px;
+            background-color: #D4A373;
+            margin-top: 2px;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.96); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.2s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-cream text-espresso dark:bg-espresso-dark dark:text-cream min-h-screen flex flex-col justify-between selection:bg-caramel selection:text-white">
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toast-container" class="fixed top-20 right-4 z-50 flex flex-col space-y-2 pointer-events-none"></div>
+
+    <!-- CUSTOM ORDER SUCCESS / INFO MODAL (Replaces alert()) -->
+    <div id="custom-alert-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm hidden">
+        <div class="bg-cream dark:bg-espresso-dark border border-caramel/30 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl text-center space-y-4 animate-fade-in">
+            <div id="alert-modal-icon" class="w-16 h-16 mx-auto rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center text-3xl">
+                <i class="fa-solid fa-check"></i>
+            </div>
+            <h3 id="alert-modal-title" class="text-2xl font-bold font-serif-heading">Muvaffaqiyatli!</h3>
+            <p id="alert-modal-body" class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-line leading-relaxed"></p>
+            <button onclick="closeCustomAlert()" class="w-full py-3 bg-caramel hover:bg-caramel-hover text-white font-bold rounded-xl text-xs uppercase tracking-wider transition-colors">
+                OK
+            </button>
+        </div>
+    </div>
+
+    <!-- STICKY NAVBAR -->
+    <header class="sticky top-0 z-40 bg-cream/90 dark:bg-espresso-dark/90 backdrop-blur-md border-b border-beige dark:border-espresso transition-colors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                
+                <!-- BRAND LOGO -->
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('home')">
+                    <div class="w-10 h-10 rounded-full bg-espresso dark:bg-caramel flex items-center justify-center text-cream dark:text-espresso shadow-sm">
+                        <i class="fa-solid fa-mug-hot text-xl"></i>
+                    </div>
+                    <div>
+                        <span class="text-2xl font-bold tracking-tight font-serif-heading text-espresso dark:text-cream block leading-tight">ESPRESSO CRAFT</span>
+                        <span class="text-[10px] tracking-widest uppercase text-caramel font-semibold block" data-i18n="slogan">SPECIALTY COFFEE</span>
+                    </div>
+                </div>
+
+                <!-- DESKTOP NAVIGATION LINKS -->
+                <nav class="hidden md:flex items-center space-x-8">
+                    <button onclick="switchTab('home')" id="nav-home" class="nav-link active py-1 text-sm tracking-wide hover:text-caramel transition-colors" data-i18n="nav_home">Bosh sahifa</button>
+                    <button onclick="switchTab('menu')" id="nav-menu" class="nav-link py-1 text-sm tracking-wide hover:text-caramel transition-colors" data-i18n="nav_menu">Menyu</button>
+                    <button onclick="switchTab('favorites')" id="nav-favorites" class="nav-link py-1 text-sm tracking-wide hover:text-caramel transition-colors relative">
+                        <span data-i18n="nav_favorites">Tanlanganlar</span>
+                        <span id="fav-badge" class="hidden absolute -top-2 -right-4 bg-caramel text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">0</span>
+                    </button>
+                    <button onclick="switchTab('cart')" id="nav-cart" class="nav-link py-1 text-sm tracking-wide hover:text-caramel transition-colors relative">
+                        <span data-i18n="nav_cart">Savat</span>
+                        <span id="cart-badge" class="hidden absolute -top-2 -right-4 bg-espresso dark:bg-caramel text-cream dark:text-espresso text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">0</span>
+                    </button>
+                    <button onclick="switchTab('about')" id="nav-about" class="nav-link py-1 text-sm tracking-wide hover:text-caramel transition-colors" data-i18n="nav_about">Biz haqimizda</button>
+                </nav>
+
+                <!-- RIGHT UTILITIES (Language + Theme + Mobile Menu Button) -->
+                <div class="flex items-center space-x-3 sm:space-x-4">
+                    <div class="relative inline-block text-left">
+                        <select id="language-select" onchange="changeLanguage(this.value)" class="bg-beige dark:bg-espresso text-espresso dark:text-cream text-xs font-semibold rounded-lg px-2.5 py-1.5 border border-caramel/20 focus:outline-none focus:ring-1 focus:ring-caramel cursor-pointer">
+                            <option value="uz">UZ</option>
+                            <option value="ru">RU</option>
+                            <option value="en">EN</option>
+                        </select>
+                    </div>
+
+                    <button onclick="toggleTheme()" class="p-2 rounded-lg bg-beige dark:bg-espresso text-espresso dark:text-cream hover:text-caramel transition-colors focus:outline-none" aria-label="Toggle Theme">
+                        <i id="theme-icon-sun" class="fa-solid fa-sun text-caramel hidden text-lg"></i>
+                        <i id="theme-icon-moon" class="fa-solid fa-moon text-espresso text-lg"></i>
+                    </button>
+
+                    <button onclick="toggleMobileMenu()" class="md:hidden p-2 text-espresso dark:text-cream hover:text-caramel focus:outline-none">
+                        <i class="fa-solid fa-bars text-xl" id="menu-hamburger"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MOBILE NAVIGATION DRAWER -->
+        <div id="mobile-menu" class="hidden md:hidden border-t border-beige dark:border-espresso bg-cream dark:bg-espresso-dark px-4 pt-2 pb-4 space-y-2 shadow-lg">
+            <button onclick="switchTab('home'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium hover:bg-beige dark:hover:bg-espresso" data-i18n="nav_home">Bosh sahifa</button>
+            <button onclick="switchTab('menu'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium hover:bg-beige dark:hover:bg-espresso" data-i18n="nav_menu">Menyu</button>
+            <button onclick="switchTab('favorites'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium hover:bg-beige dark:hover:bg-espresso flex justify-between items-center">
+                <span data-i18n="nav_favorites">Tanlanganlar</span>
+                <span id="fav-badge-mobile" class="bg-caramel text-white text-xs px-2 py-0.5 rounded-full">0</span>
+            </button>
+            <button onclick="switchTab('cart'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium hover:bg-beige dark:hover:bg-espresso flex justify-between items-center">
+                <span data-i18n="nav_cart">Savat</span>
+                <span id="cart-badge-mobile" class="bg-espresso dark:bg-caramel text-cream dark:text-espresso text-xs px-2 py-0.5 rounded-full">0</span>
+            </button>
+            <button onclick="switchTab('about'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium hover:bg-beige dark:hover:bg-espresso" data-i18n="nav_about">Biz haqimizda</button>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="flex-grow">
+        
+        <!-- ================= PAGE 1: HOME ================= -->
+        <section id="page-home" class="page-content">
+            <!-- HERO BANNER -->
+            <div class="relative bg-espresso text-cream overflow-hidden">
+                <div class="absolute inset-0 z-0 opacity-40 mix-blend-overlay">
+                    <img src="https://images.unsplash.com/photo-1447933601403-0c6688de566e?auto=format&fit=crop&w=1600&q=80" alt="Coffee beans background" class="w-full h-full object-cover">
+                </div>
+                <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 md:py-36 flex flex-col items-start justify-center">
+                    <span class="inline-block px-3 py-1 bg-caramel/20 border border-caramel/40 text-caramel rounded-full text-xs tracking-widest uppercase font-semibold mb-4 font-sans" data-i18n="hero_badge">100% Arabica Specialty</span>
+                    <h1 class="text-4xl sm:text-6xl md:text-7xl font-bold font-serif-heading max-w-3xl leading-tight mb-6" data-i18n="hero_title">
+                        Mukammal qahva zavqi va haqiqiy san'at
+                    </h1>
+                    <p class="text-lg sm:text-xl text-beige/90 max-w-xl mb-8 font-light" data-i18n="hero_desc">
+                        Har bir piyolada yuqori sifatli donalar, mukammal qovurilish va baristalarimizning samimiy mehnati mujassam.
+                    </p>
+                    <div class="flex flex-wrap gap-4">
+                        <button onclick="switchTab('menu')" class="px-8 py-4 bg-caramel hover:bg-caramel-hover text-white font-semibold rounded-xl shadow-lg transition-all transform hover:-translate-y-0.5" data-i18n="hero_btn_menu">
+                            Menyuni ko'rish
+                        </button>
+                        <button onclick="switchTab('cart')" class="px-8 py-4 bg-transparent border-2 border-beige text-beige hover:bg-beige hover:text-espresso font-semibold rounded-xl transition-all" data-i18n="hero_btn_order">
+                            Buyurtma berish
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FEATURED HIGHLIGHTS -->
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+                <div class="text-center max-w-2xl mx-auto mb-12">
+                    <h2 class="text-3xl sm:text-4xl font-bold font-serif-heading mb-3" data-i18n="home_featured_title">Tanlangan Bestsellerlar</h2>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm" data-i18n="home_featured_subtitle">Mijozlarimiz tomonidan eng ko'p sevib iste'mol qilinadigan ichimliklar</p>
+                </div>
+                
+                <div id="home-featured-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Dynamic rendering via JS -->
+                </div>
+            </div>
+
+            <!-- COFFEE PHILOSOPHY BANNER -->
+            <div class="bg-beige dark:bg-espresso border-y border-caramel/10 py-16">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                    <div class="relative rounded-2xl overflow-hidden shadow-xl aspect-[4/3]">
+                        <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=800&q=80" alt="Barista pouring coffee" class="w-full h-full object-cover">
+                    </div>
+                    <div class="space-y-6">
+                        <span class="text-caramel uppercase text-xs tracking-widest font-bold" data-i18n="phil_badge">Bizning falsafamiz</span>
+                        <h2 class="text-3xl sm:text-4xl font-bold font-serif-heading" data-i18n="phil_title">Har bir tomchida yuksak sifat</h2>
+                        <p class="text-gray-700 dark:text-gray-300 leading-relaxed" data-i18n="phil_desc">
+                            Biz Efiopiya, Kolumbiya va Gvatemalaning eng sara fermer xo'jaliklaridan to'g'ridan-to'g'ri yangi hosil Arabica donalarini keltiramiz. O'zimizning maxsus qovurish sexida har bir turning individual xususiyatlarini ochib beramiz.
+                        </p>
+                        <div class="grid grid-cols-2 gap-4 pt-4 border-t border-caramel/20">
+                            <div>
+                                <span class="block text-2xl font-bold text-caramel">100%</span>
+                                <span class="text-xs text-gray-600 dark:text-gray-400" data-i18n="phil_stat1">Organik Arabica donalari</span>
+                            </div>
+                            <div>
+                                <span class="block text-2xl font-bold text-caramel">15+</span>
+                                <span class="text-xs text-gray-600 dark:text-gray-400" data-i18n="phil_stat2">Mualliflik retseptlari</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- REVIEWS & HOURS SECTION -->
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2 space-y-6">
+                    <h3 class="text-2xl font-bold font-serif-heading mb-6" data-i18n="reviews_title">Mijozlarimiz fikrlari</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="p-6 bg-white dark:bg-espresso/50 rounded-2xl border border-beige dark:border-espresso shadow-sm">
+                            <div class="flex text-caramel mb-2 space-x-1">
+                                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                            </div>
+                            <p class="text-sm italic mb-4 text-gray-700 dark:text-gray-300" data-i18n="review1_text">"Toshkentdagi eng mazali Kapuchino! Atmosfera juda tinch va xodimlar juda xushmuomala."</p>
+                            <span class="text-xs font-bold block" data-i18n="review1_author">Jasur Abdullayev</span>
+                        </div>
+                        <div class="p-6 bg-white dark:bg-espresso/50 rounded-2xl border border-beige dark:border-espresso shadow-sm">
+                            <div class="flex text-caramel mb-2 space-x-1">
+                                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                            </div>
+                            <p class="text-sm italic mb-4 text-gray-700 dark:text-gray-300" data-i18n="review2_text">"Balki mamlakatdagi eng yaxshi Matcha Latte va yangi pishirilgan kruassanlar shu yerdadir."</p>
+                            <span class="text-xs font-bold block" data-i18n="review2_author">Elena Smirnova</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- OPENING HOURS & QUICK CONTACT -->
+                <div class="p-6 bg-beige dark:bg-espresso rounded-2xl border border-caramel/20 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center space-x-3 text-caramel mb-4">
+                            <i class="fa-regular fa-clock text-xl"></i>
+                            <h3 class="text-xl font-bold font-serif-heading text-espresso dark:text-cream" data-i18n="hours_title">Ish vaqti</h3>
+                        </div>
+                        <ul class="space-y-3 text-sm border-b border-caramel/10 pb-4 mb-4">
+                            <li class="flex justify-between"><span class="font-medium" data-i18n="days_week">Dushanba - Juma:</span> <span>08:00 - 23:00</span></li>
+                            <li class="flex justify-between"><span class="font-medium" data-i18n="days_weekend">Shanba - Yakshanba:</span> <span>09:00 - 00:00</span></li>
+                        </ul>
+                        <div class="flex items-center space-x-3 text-caramel mb-2">
+                            <i class="fa-solid fa-location-dot text-lg"></i>
+                            <span class="text-xs text-gray-700 dark:text-gray-300" data-i18n="address_text">Toshkent sh., Amir Temur shox ko'chasi, 42-uy</span>
+                        </div>
+                    </div>
+                    <button onclick="switchTab('about')" class="w-full mt-6 py-2.5 bg-espresso dark:bg-caramel text-cream dark:text-espresso font-semibold text-xs rounded-xl hover:opacity-90 transition-opacity" data-i18n="btn_view_map">
+                        Xaritadan ko'rish va Aloqa
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PAGE 2: MENU ================= -->
+        <section id="page-menu" class="page-content hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+                    <div>
+                        <h1 class="text-3xl sm:text-4xl font-bold font-serif-heading mb-1" data-i18n="menu_title">Bizning Menyu</h1>
+                        <p class="text-xs text-gray-600 dark:text-gray-400" data-i18n="menu_subtitle">Har bir ta'mga mos sifatli va mazali tanlovlar</p>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <div class="relative">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+                            <input type="text" id="menu-search" oninput="filterMenu()" placeholder="Qidirish..." class="w-full sm:w-60 pl-9 pr-4 py-2 bg-white dark:bg-espresso border border-beige dark:border-espresso/50 rounded-xl text-sm focus:outline-none focus:border-caramel text-espresso dark:text-cream">
+                        </div>
+                        <select id="menu-sort" onchange="filterMenu()" class="bg-white dark:bg-espresso border border-beige dark:border-espresso/50 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-caramel text-espresso dark:text-cream cursor-pointer">
+                            <option value="default" data-i18n="sort_default">Saralash: Standart</option>
+                            <option value="low-high" data-i18n="sort_low_high">Narx: Arzonroq</option>
+                            <option value="high-low" data-i18n="sort_high_low">Narx: Qimmatroq</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- CATEGORY TABS -->
+                <div class="flex space-x-2 overflow-x-auto hide-scrollbar pb-3 mb-8 border-b border-beige dark:border-espresso">
+                    <button onclick="setCategory('all')" id="cat-all" class="cat-btn active px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all bg-caramel text-white" data-i18n="cat_all">Barchasi</button>
+                    <button onclick="setCategory('hot')" id="cat-hot" class="cat-btn px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all bg-beige dark:bg-espresso text-espresso dark:text-cream hover:bg-caramel/20" data-i18n="cat_hot">Issiq Qahva</button>
+                    <button onclick="setCategory('iced')" id="cat-iced" class="cat-btn px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all bg-beige dark:bg-espresso text-espresso dark:text-cream hover:bg-caramel/20" data-i18n="cat_iced">Muzli Qahva</button>
+                    <button onclick="setCategory('tea')" id="cat-tea" class="cat-btn px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all bg-beige dark:bg-espresso text-espresso dark:text-cream hover:bg-caramel/20" data-i18n="cat_tea">Matcha & Choy</button>
+                    <button onclick="setCategory('signature')" id="cat-signature" class="cat-btn px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all bg-beige dark:bg-espresso text-espresso dark:text-cream hover:bg-caramel/20" data-i18n="cat_signature">Mualliflik</button>
+                    <button onclick="setCategory('desserts')" id="cat-desserts" class="cat-btn px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all bg-beige dark:bg-espresso text-espresso dark:text-cream hover:bg-caramel/20" data-i18n="cat_desserts">Dessertlar</button>
+                    <button onclick="setCategory('bakery')" id="cat-bakery" class="cat-btn px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all bg-beige dark:bg-espresso text-espresso dark:text-cream hover:bg-caramel/20" data-i18n="cat_bakery">Pishiriqlar</button>
+                </div>
+
+                <!-- PRODUCT GRID -->
+                <div id="menu-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+            </div>
+        </section>
+
+        <!-- ================= PAGE 3: FAVORITES ================= -->
+        <section id="page-favorites" class="page-content hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+                <h1 class="text-3xl sm:text-4xl font-bold font-serif-heading mb-2" data-i18n="fav_title">Sizning Tanlanganlaringiz</h1>
+                <p class="text-xs text-gray-600 dark:text-gray-400 mb-8" data-i18n="fav_subtitle">Saqlab qo'yilgan yoqimli mahsulotlaringiz ruyhati</p>
+
+                <div id="fav-empty-state" class="hidden text-center py-20 border-2 border-dashed border-beige dark:border-espresso rounded-3xl">
+                    <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-caramel/10 flex items-center justify-center text-caramel">
+                        <i class="fa-regular fa-heart text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold font-serif-heading mb-2" data-i18n="fav_empty_head">Hali hech narsa saqlanmagan</h3>
+                    <p class="text-sm text-gray-500 mb-6" data-i18n="fav_empty_desc">Menyudan yoqqan taom yoki ichimlikdagi yurakcha tugmasini bosing.</p>
+                    <button onclick="switchTab('menu')" class="px-6 py-2.5 bg-caramel text-white text-xs font-semibold rounded-xl hover:bg-caramel-hover transition-colors" data-i18n="btn_go_menu">Menyuga o'tish</button>
+                </div>
+
+                <div id="fav-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+            </div>
+        </section>
+
+        <!-- ================= PAGE 4: CART & CHECKOUT ================= -->
+        <section id="page-cart" class="page-content hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+                <h1 class="text-3xl sm:text-4xl font-bold font-serif-heading mb-8" data-i18n="cart_title">Savat va Buyurtma</h1>
+
+                <div id="cart-empty-state" class="hidden text-center py-20 border-2 border-dashed border-beige dark:border-espresso rounded-3xl">
+                    <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-caramel/10 flex items-center justify-center text-caramel">
+                        <i class="fa-solid fa-cart-shopping text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold font-serif-heading mb-2" data-i18n="cart_empty_head">Savatingiz bo'sh</h3>
+                    <p class="text-sm text-gray-500 mb-6" data-i18n="cart_empty_desc">Sevimli ichimlik va shirinliklaringizni savatga qo'shing.</p>
+                    <button onclick="switchTab('menu')" class="px-6 py-2.5 bg-caramel text-white text-xs font-semibold rounded-xl hover:bg-caramel-hover transition-colors" data-i18n="btn_go_menu">Menyuga o'tish</button>
+                </div>
+
+                <div id="cart-content-wrapper" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                    <!-- CART ITEMS LIST -->
+                    <div class="lg:col-span-7 space-y-4">
+                        <div class="flex justify-between items-center pb-3 border-b border-beige dark:border-espresso">
+                            <span class="text-sm font-bold uppercase tracking-wider text-caramel" data-i18n="cart_items_header">Mahsulotlar</span>
+                            <button onclick="clearCart()" class="text-xs text-red-500 hover:underline" data-i18n="cart_clear_all">Savatni tozalash</button>
+                        </div>
+                        <div id="cart-items-container" class="space-y-4"></div>
+                    </div>
+
+                    <!-- CHECKOUT FORM & SUMMARY -->
+                    <div class="lg:col-span-5 bg-beige dark:bg-espresso p-6 sm:p-8 rounded-3xl border border-caramel/20 shadow-sm space-y-6">
+                        <h2 class="text-xl font-bold font-serif-heading border-b border-caramel/20 pb-3" data-i18n="checkout_title">Buyurtmani rasmiylashtirish</h2>
+
+                        <form id="checkout-form" onsubmit="handleCheckout(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider mb-1" data-i18n="form_name">Ismingiz *</label>
+                                <input type="text" id="cust-name" required placeholder="Masalan: Ali Valiyev" class="w-full px-4 py-2.5 bg-white dark:bg-espresso-dark border border-caramel/20 rounded-xl text-sm focus:outline-none focus:border-caramel">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider mb-1" data-i18n="form_phone">Telefon raqamingiz *</label>
+                                <input type="tel" id="cust-phone" required placeholder="+998 90 123 45 67" class="w-full px-4 py-2.5 bg-white dark:bg-espresso-dark border border-caramel/20 rounded-xl text-sm focus:outline-none focus:border-caramel">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider mb-2" data-i18n="form_method">Yetkazib berish usuli</label>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <label class="cursor-pointer border border-caramel/30 rounded-xl p-3 flex items-center justify-center space-x-2 bg-white dark:bg-espresso-dark has-[:checked]:border-caramel has-[:checked]:ring-1 has-[:checked]:ring-caramel">
+                                        <input type="radio" name="delivery_method" value="pickup" checked onchange="toggleAddressField(false)" class="accent-caramel">
+                                        <span class="text-xs font-semibold" data-i18n="method_pickup">Olib ketish</span>
+                                    </label>
+                                    <label class="cursor-pointer border border-caramel/30 rounded-xl p-3 flex items-center justify-center space-x-2 bg-white dark:bg-espresso-dark has-[:checked]:border-caramel has-[:checked]:ring-1 has-[:checked]:ring-caramel">
+                                        <input type="radio" name="delivery_method" value="delivery" onchange="toggleAddressField(true)" class="accent-caramel">
+                                        <span class="text-xs font-semibold" data-i18n="method_delivery">Yetkazib berish</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div id="address-container" class="hidden">
+                                <label class="block text-xs font-bold uppercase tracking-wider mb-1" data-i18n="form_address">Yetkazib berish manzili *</label>
+                                <textarea id="cust-address" rows="2" placeholder="Tuman, ko'cha, uy raqami, xonadon" class="w-full px-4 py-2.5 bg-white dark:bg-espresso-dark border border-caramel/20 rounded-xl text-sm focus:outline-none focus:border-caramel"></textarea>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider mb-1" data-i18n="form_comment">Izoh (ixtiyoriy)</label>
+                                <input type="text" id="cust-comment" placeholder="Shakar miqdori, eshik kodi va h.k." class="w-full px-4 py-2.5 bg-white dark:bg-espresso-dark border border-caramel/20 rounded-xl text-sm focus:outline-none focus:border-caramel">
+                            </div>
+
+                            <div class="border-t border-caramel/20 pt-4 space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-400" data-i18n="summary_subtotal">Mahsulotlar summasi:</span>
+                                    <span id="summary-subtotal" class="font-semibold">0 UZS</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-400" data-i18n="summary_delivery">Yetkazib berish:</span>
+                                    <span id="summary-delivery" class="font-semibold text-xs text-caramel">Bepul / Olib ketish</span>
+                                </div>
+                                <div class="flex justify-between text-base font-bold pt-2 border-t border-caramel/20">
+                                    <span data-i18n="summary_total">Jami to'lov:</span>
+                                    <span id="summary-total" class="text-caramel">0 UZS</span>
+                                </div>
+                            </div>
+
+                            <button type="submit" id="btn-submit-order" class="w-full py-4 bg-caramel hover:bg-caramel-hover text-white font-bold rounded-xl shadow-lg transition-all flex items-center justify-center space-x-2">
+                                <i class="fa-paper-plane fa-solid text-sm"></i>
+                                <span data-i18n="btn_place_order">Telegram Bot Orqali Yuborish</span>
+                            </button>
+                        </form>
+                        
+                        <div class="text-center pt-2">
+                            <a href="https://t.me/coffeeshopdemoday_bot" target="_blank" class="text-[11px] text-gray-500 hover:text-caramel underline flex items-center justify-center gap-1">
+                                <i class="fa-brands fa-telegram"></i> @coffeeshopdemoday_bot (Telegram Bot Link)
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PAGE 5: ABOUT & CONTACT ================= -->
+        <section id="page-about" class="page-content hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-16">
+                
+                <!-- ABOUT HERO / STORY -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                    <div class="space-y-6">
+                        <span class="text-caramel uppercase text-xs tracking-widest font-bold" data-i18n="about_badge">Tarix va Falsafa</span>
+                        <h1 class="text-3xl sm:text-5xl font-bold font-serif-heading" data-i18n="about_title">Espresso Craft Tarixi</h1>
+                        <p class="text-gray-700 dark:text-gray-300 leading-relaxed text-sm sm:text-base" data-i18n="about_story1">
+                            Espresso Craft 2021-yilda Toshkent markazida kichik va shinam qahvaxona sifatida o'z faoliyatini boshlagan. Bizning maqsadimiz — shunchaki qahva berish emas, balki har bir tashrif buyuruvchiga samimiyat, shinamlik va chinakam sifat daqiqalarini ulashishdir.
+                        </p>
+                        <p class="text-gray-700 dark:text-gray-300 leading-relaxed text-sm sm:text-base" data-i18n="about_story2">
+                            Biz faqatgina 100% Arabica donalaridan foydalanamiz va har haftada donalarni o'z sexlarimizda yangidan qovuramiz.
+                        </p>
+                    </div>
+                    <div class="relative rounded-3xl overflow-hidden shadow-2xl aspect-[4/3]">
+                        <img src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=800&q=80" alt="Coffee shop interior" class="w-full h-full object-cover">
+                    </div>
+                </div>
+
+                <!-- CONTACT & MAP SECTION -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- CONTACT FORM -->
+                    <div class="bg-white dark:bg-espresso/50 p-6 sm:p-8 rounded-3xl border border-beige dark:border-espresso space-y-4">
+                        <h3 class="text-2xl font-bold font-serif-heading" data-i18n="contact_form_title">Biz bilan bog'laning</h3>
+                        <form onsubmit="handleContactSubmit(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-bold uppercase mb-1" data-i18n="form_name">Ism</label>
+                                <input type="text" required class="w-full px-4 py-2.5 bg-beige dark:bg-espresso border border-caramel/20 rounded-xl text-sm focus:outline-none focus:border-caramel">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold uppercase mb-1" data-i18n="form_phone">Telefon raqam yoki Telegram</label>
+                                <input type="text" required class="w-full px-4 py-2.5 bg-beige dark:bg-espresso border border-caramel/20 rounded-xl text-sm focus:outline-none focus:border-caramel">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold uppercase mb-1" data-i18n="form_message">Xabar</label>
+                                <textarea rows="3" required class="w-full px-4 py-2.5 bg-beige dark:bg-espresso border border-caramel/20 rounded-xl text-sm focus:outline-none focus:border-caramel"></textarea>
+                            </div>
+                            <button type="submit" class="w-full py-3 bg-caramel text-white font-bold rounded-xl hover:bg-caramel-hover transition-colors text-xs uppercase tracking-wider" data-i18n="btn_send_msg">Xabarni yuborish</button>
+                        </form>
+                    </div>
+
+                    <!-- CONTACT DETAILS & SOCIALS -->
+                    <div class="space-y-6 flex flex-col justify-between">
+                        <div class="space-y-4">
+                            <h3 class="text-2xl font-bold font-serif-heading" data-i18n="contact_info_title">Manzil va Aloqa</h3>
+                            <div class="flex items-start space-x-3 text-sm">
+                                <i class="fa-solid fa-location-dot text-caramel text-lg mt-1"></i>
+                                <div>
+                                    <strong class="block" data-i18n="address_label">Manzil:</strong>
+                                    <span data-i18n="address_text">Toshkent sh., Amir Temur shox ko'chasi, 42-uy</span>
+                                </div>
+                            </div>
+                            <div class="flex items-start space-x-3 text-sm">
+                                <i class="fa-solid fa-phone text-caramel text-lg mt-1"></i>
+                                <div>
+                                    <strong class="block" data-i18n="phone_label">Telefon:</strong>
+                                    <span>+998 (71) 200-00-42</span>
+                                </div>
+                            </div>
+                            <div class="flex items-start space-x-3 text-sm">
+                                <i class="fa-brands fa-telegram text-caramel text-lg mt-1"></i>
+                                <div>
+                                    <strong class="block" data-i18n="bot_label">Rasmiy Bot:</strong>
+                                    <a href="https://t.me/coffeeshopdemoday_bot" target="_blank" class="text-caramel underline">@coffeeshopdemoday_bot</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- MAP PLACEHOLDER GRAPHIC -->
+                        <div class="h-48 w-full bg-beige dark:bg-espresso rounded-3xl border border-caramel/20 flex flex-col items-center justify-center text-center p-4">
+                            <i class="fa-solid fa-map-location-dot text-4xl text-caramel mb-2"></i>
+                            <span class="text-xs font-bold" data-i18n="map_placeholder">Toshkent Xaritasi / Amir Temur Ko'chasi</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- PRODUCT DETAIL MODAL POPUP -->
+    <div id="product-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm hidden">
+        <div class="bg-cream dark:bg-espresso-dark border border-caramel/20 rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl relative animate-fade-in">
+            <button onclick="closeProductModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-black/40 text-white flex items-center justify-center hover:bg-black/60 transition-colors z-10">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="h-64 overflow-hidden relative">
+                <img id="modal-img" src="" alt="" class="w-full h-full object-cover">
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <span id="modal-cat" class="text-[10px] font-bold uppercase tracking-widest text-caramel"></span>
+                        <h3 id="modal-title" class="text-2xl font-bold font-serif-heading"></h3>
+                    </div>
+                    <span id="modal-price" class="text-lg font-bold text-caramel"></span>
+                </div>
+                <p id="modal-desc" class="text-sm text-gray-600 dark:text-gray-300"></p>
+                
+                <div class="pt-4 border-t border-beige dark:border-espresso flex gap-3">
+                    <button id="modal-add-btn" class="flex-grow py-3 bg-caramel text-white font-bold rounded-xl text-xs uppercase tracking-wider hover:bg-caramel-hover transition-colors" data-i18n="btn_add_to_cart">
+                        Savatga Qo'shish
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="bg-espresso text-cream border-t border-caramel/20 pt-12 pb-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <span class="text-xl font-bold font-serif-heading text-caramel block mb-2">ESPRESSO CRAFT</span>
+                    <p class="text-xs text-beige/70 leading-relaxed" data-i18n="footer_about">Toshkentdagi eng sara premium qahva va sifatli servis makoni.</p>
+                </div>
+                <div>
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-caramel mb-3" data-i18n="footer_links">Sahifalar</h4>
+                    <ul class="space-y-2 text-xs text-beige/80">
+                        <li><button onclick="switchTab('home')" class="hover:text-caramel">Bosh sahifa</button></li>
+                        <li><button onclick="switchTab('menu')" class="hover:text-caramel">Menyu</button></li>
+                        <li><button onclick="switchTab('favorites')" class="hover:text-caramel">Tanlanganlar</button></li>
+                        <li><button onclick="switchTab('cart')" class="hover:text-caramel">Savat</button></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-caramel mb-3" data-i18n="footer_socials">Ijtimoiy Tarmoqlar</h4>
+                    <div class="flex space-x-3 text-lg">
+                        <a href="#" class="text-beige hover:text-caramel"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="https://t.me/coffeeshopdemoday_bot" target="_blank" class="text-beige hover:text-caramel"><i class="fa-brands fa-telegram"></i></a>
+                        <a href="#" class="text-beige hover:text-caramel"><i class="fa-brands fa-facebook"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-caramel mb-3" data-i18n="footer_bot">Telegram Integratsiya</h4>
+                    <p class="text-xs text-beige/70 mb-2">Bot: @coffeeshopdemoday_bot</p>
+                    <span class="inline-block px-2 py-1 bg-emerald-900/50 text-emerald-300 text-[10px] rounded font-mono">STATUS: ONLINE / ACTIVE</span>
+                </div>
+            </div>
+            <div class="border-t border-beige/10 pt-6 text-center text-[11px] text-beige/50">
+                &copy; 2026 Espresso Craft Coffee Shop. Multi-language & Telegram Integration Web Application.
+            </div>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        /* ================= TRANSLATIONS DICTIONARY ================= */
+        const translations = {
+            uz: {
+                slogan: "SPECIALTY COFFEE",
+                nav_home: "Bosh sahifa",
+                nav_menu: "Menyu",
+                nav_favorites: "Tanlanganlar",
+                nav_cart: "Savat",
+                nav_about: "Biz haqimizda",
+                hero_badge: "100% Arabica Specialty",
+                hero_title: "Mukammal qahva zavqi va haqiqiy san'at",
+                hero_desc: "Har bir piyolada yuqori sifatli donalar, mukammal qovurilish va baristalarimizning samimiy mehnati mujassam.",
+                hero_btn_menu: "Menyuni ko'rish",
+                hero_btn_order: "Buyurtma berish",
+                home_featured_title: "Tanlangan Bestsellerlar",
+                home_featured_subtitle: "Mijozlarimiz tomonidan eng ko'p sevib iste'mol qilinadigan ichimliklar",
+                phil_badge: "Bizning falsafamiz",
+                phil_title: "Har bir tomchida yuksak sifat",
+                phil_desc: "Biz Efiopiya, Kolumbiya va Gvatemalaning eng sara fermer xo'jaliklaridan to'g'ridan-to'g'ri yangi hosil Arabica donalarini keltiramiz. O'zimizning maxsus qovurish sexida har bir turning individual xususiyatlarini ochib beramiz.",
+                phil_stat1: "Organik Arabica donalari",
+                phil_stat2: "Mualliflik retseptlari",
+                reviews_title: "Mijozlarimiz fikrlari",
+                review1_text: "\"Toshkentdagi eng mazali Kapuchino! Atmosfera juda tinch va xodimlar juda xushmuomala.\"",
+                review1_author: "Jasur Abdullayev",
+                review2_text: "\"Balki mamlakatdagi eng yaxshi Matcha Latte va yangi pishirilgan kruassanlar shu yerdadir.\"",
+                review2_author: "Elena Smirnova",
+                hours_title: "Ish vaqti",
+                days_week: "Dushanba - Juma:",
+                days_weekend: "Shanba - Yakshanba:",
+                address_text: "Toshkent sh., Amir Temur shox ko'chasi, 42-uy",
+                btn_view_map: "Xaritadan ko'rish va Aloqa",
+                menu_title: "Bizning Menyu",
+                menu_subtitle: "Har bir ta'mga mos sifatli va mazali tanlovlar",
+                sort_default: "Saralash: Standart",
+                sort_low_high: "Narx: Arzonroq",
+                sort_high_low: "Narx: Qimmatroq",
+                cat_all: "Barchasi",
+                cat_hot: "Issiq Qahva",
+                cat_iced: "Muzli Qahva",
+                cat_tea: "Matcha & Choy",
+                cat_signature: "Mualliflik",
+                cat_desserts: "Dessertlar",
+                cat_bakery: "Pishiriqlar",
+                fav_title: "Sizning Tanlanganlaringiz",
+                fav_subtitle: "Saqlab qo'yilgan yoqimli mahsulotlaringiz ruyhati",
+                fav_empty_head: "Hali hech narsa saqlanmagan",
+                fav_empty_desc: "Menyudan yoqqan taom yoki ichimlikdagi yurakcha tugmasini bosing.",
+                btn_go_menu: "Menyuga o'tish",
+                cart_title: "Savat va Buyurtma",
+                cart_empty_head: "Savatingiz bo'sh",
+                cart_empty_desc: "Sevimli ichimlik va shirinliklaringizni savatga qo'shing.",
+                cart_items_header: "Mahsulotlar",
+                cart_clear_all: "Savatni tozalash",
+                checkout_title: "Buyurtmani rasmiylashtirish",
+                form_name: "Ismingiz *",
+                form_phone: "Telefon raqamingiz *",
+                form_method: "Yetkazib berish usuli",
+                method_pickup: "Olib ketish",
+                method_delivery: "Yetkazib berish",
+                form_address: "Yetkazib berish manzili *",
+                form_comment: "Izoh (ixtiyoriy)",
+                summary_subtotal: "Mahsulotlar summasi:",
+                summary_delivery: "Yetkazib berish:",
+                summary_total: "Jami to'lov:",
+                btn_place_order: "Telegram Bot Orqali Yuborish",
+                about_badge: "Tarix va Falsafa",
+                about_title: "Espresso Craft Tarixi",
+                about_story1: "Espresso Craft 2021-yilda Toshkent markazida kichik va shinam qahvaxona sifatida o'z faoliyatini boshlagan. Bizning maqsadimiz — shunchaki qahva berish emas, balki har bir tashrif buyuruvchiga samimiyat, shinamlik va chinakam sifat daqiqalarini ulashishdir.",
+                about_story2: "Biz faqatgina 100% Arabica donalaridan foydalanamiz va har haftada donalarni o'z sexlarimizda yangidan qovuramiz.",
+                contact_form_title: "Biz bilan bog'laning",
+                form_message: "Xabar",
+                btn_send_msg: "Xabarni yuborish",
+                contact_info_title: "Manzil va Aloqa",
+                address_label: "Manzil:",
+                phone_label: "Telefon:",
+                bot_label: "Rasmiy Bot:",
+                map_placeholder: "Toshkent Xaritasi / Amir Temur Ko'chasi",
+                btn_add_to_cart: "Savatga Qo'shish",
+                footer_about: "Toshkentdagi eng sara premium qahva va sifatli servis makoni.",
+                footer_links: "Sahifalar",
+                footer_socials: "Ijtimoiy Tarmoqlar",
+                footer_bot: "Telegram Integratsiya",
+                toast_added_cart: "Savatga qo'shildi!",
+                toast_added_fav: "Tanlanganlarga qo'shildi!",
+                toast_removed_fav: "Tanlanganlardan olib tashlandi!",
+                toast_order_success: "Buyurtma Telegram botiga yuborildi!"
+            },
+            ru: {
+                slogan: "SPECIALTY COFFEE",
+                nav_home: "Главная",
+                nav_menu: "Меню",
+                nav_favorites: "Избранное",
+                nav_cart: "Корзина",
+                nav_about: "О нас",
+                hero_badge: "100% Arabica Specialty",
+                hero_title: "Совершенство вкуса и искусство кофе",
+                hero_desc: "Каждая чашка объединяет отборные зерна, идеальную обжарку и мастерство наших бариста.",
+                hero_btn_menu: "Смотреть меню",
+                hero_btn_order: "Сделать заказ",
+                home_featured_title: "Популярные Бестселлеры",
+                home_featured_subtitle: "Любимые напитки и десерты наших гостей",
+                phil_badge: "Наша философия",
+                phil_title: "Высочайшее качество в каждой капле",
+                phil_desc: "Мы поставляем свежий урожай арабики напрямую с ферм Эфиопии, Колумбии и Гватемалы. Раскрываем уникальный профиль каждого сорта.",
+                phil_stat1: "Органическая Арабика",
+                phil_stat2: "Авторские рецепты",
+                reviews_title: "Отзывы наших гостей",
+                review1_text: "\"Самый вкусный Капучино в Ташкенте! Очень уютная атмосфера и вежливый персонал.\"",
+                review1_author: "Джасур Абдуллаев",
+                review2_text: "\"Пожалуй, лучший Матча Латте и самые свежие круассаны в городе.\"",
+                review2_author: "Елена Смирнова",
+                hours_title: "Часы работы",
+                days_week: "Понедельник - Пятница:",
+                days_weekend: "Суббота - Воскресенье:",
+                address_text: "г. Ташкент, проспект Амира Темура, 42",
+                btn_view_map: "Посмотреть на карте",
+                menu_title: "Наше Меню",
+                menu_subtitle: "Отборные позиции для каждого ценителя",
+                sort_default: "Сортировка: По умолчанию",
+                sort_low_high: "Цена: Сначала дешевле",
+                sort_high_low: "Цена: Сначала дороже",
+                cat_all: "Все",
+                cat_hot: "Горячий Кофе",
+                cat_iced: "Холодный Кофе",
+                cat_tea: "Матча и Чай",
+                cat_signature: "Авторские",
+                cat_desserts: "Десерты",
+                cat_bakery: "Выпечка",
+                fav_title: "Ваше Избранное",
+                fav_subtitle: "Список сохраненных любимых позиций",
+                fav_empty_head: "В избранном пока пусто",
+                fav_empty_desc: "Нажмите на иконку сердечка в меню, чтобы сохранить товар.",
+                btn_go_menu: "Перейти в меню",
+                cart_title: "Корзина и Оформление",
+                cart_empty_head: "Ваша корзина пуста",
+                cart_empty_desc: "Добавьте любимые напитки и десерты в корзину.",
+                cart_items_header: "Товары",
+                cart_clear_all: "Очистить корзину",
+                checkout_title: "Оформление заказа",
+                form_name: "Ваше имя *",
+                form_phone: "Номер телефона *",
+                form_method: "Способ получения",
+                method_pickup: "Самовывоз",
+                method_delivery: "Доставка",
+                form_address: "Адрес доставки *",
+                form_comment: "Комментарий (необязательно)",
+                summary_subtotal: "Сумма товаров:",
+                summary_delivery: "Доставка:",
+                summary_total: "Итого к оплате:",
+                btn_place_order: "Отправить через Telegram Bot",
+                about_badge: "История и Философия",
+                about_title: "История Espresso Craft",
+                about_story1: "Espresso Craft начал свой путь в 2021 году в центре Ташкента. Наша цель — дарить атмосферу уюта и бескомпромиссного качества.",
+                about_story2: "Мы используем только 100% Арабику и обжариваем зерна каждую неделю.",
+                contact_form_title: "Связаться с нами",
+                form_message: "Сообщение",
+                btn_send_msg: "Отправить сообщение",
+                contact_info_title: "Контакты и Адрес",
+                address_label: "Адрес:",
+                phone_label: "Телефон:",
+                bot_label: "Официальный Бот:",
+                map_placeholder: "Карта Ташкента / Проспект Амира Темура",
+                btn_add_to_cart: "Добавить в корзину",
+                footer_about: "Премиальный кофе и высококлассный сервис в Ташкенте.",
+                footer_links: "Разделы",
+                footer_socials: "Социальные сети",
+                footer_bot: "Telegram Интеграция",
+                toast_added_cart: "Добавлено в корзину!",
+                toast_added_fav: "Добавлено в избранное!",
+                toast_removed_fav: "Удалено из избранного!",
+                toast_order_success: "Заказ отправлен в Telegram бот!"
+            },
+            en: {
+                slogan: "SPECIALTY COFFEE",
+                nav_home: "Home",
+                nav_menu: "Menu",
+                nav_favorites: "Favorites",
+                nav_cart: "Cart",
+                nav_about: "About Us",
+                hero_badge: "100% Specialty Arabica",
+                hero_title: "Pure Coffee Perfection & Craftsmanship",
+                hero_desc: "Every cup combines selected beans, precise roasting, and the passion of our expert baristas.",
+                hero_btn_menu: "Explore Menu",
+                hero_btn_order: "Order Now",
+                home_featured_title: "Featured Bestsellers",
+                home_featured_subtitle: "Most loved beverages and fresh bakery items by our community",
+                phil_badge: "Our Philosophy",
+                phil_title: "Uncompromising Quality in Every Drop",
+                phil_desc: "We source single-origin Arabica directly from top farms in Ethiopia, Colombia, and Guatemala, unlocking rich tasting notes in our roastery.",
+                phil_stat1: "Organic Specialty Beans",
+                phil_stat2: "Signature Drink Recipes",
+                reviews_title: "Customer Reviews",
+                review1_text: "\"Hands down the best Cappuccino in Tashkent! Cozy vibe and super friendly staff.\"",
+                review1_author: "Jasur Abdullayev",
+                review2_text: "\"Best Matcha Latte and freshest croissants in town.\"",
+                review2_author: "Elena Smirnova",
+                hours_title: "Opening Hours",
+                days_week: "Monday - Friday:",
+                days_weekend: "Saturday - Sunday:",
+                address_text: "Tashkent, Amir Temur Avenue, Bldg 42",
+                btn_view_map: "View Map & Contact",
+                menu_title: "Our Menu",
+                menu_subtitle: "Crafted drinks and fresh baked treats for every taste",
+                sort_default: "Sort: Default",
+                sort_low_high: "Price: Low to High",
+                sort_high_low: "Price: High to Low",
+                cat_all: "All Items",
+                cat_hot: "Hot Coffee",
+                cat_iced: "Iced Coffee",
+                cat_tea: "Matcha & Tea",
+                cat_signature: "Signature Drinks",
+                cat_desserts: "Desserts",
+                cat_bakery: "Bakery",
+                fav_title: "Your Favorites",
+                fav_subtitle: "Saved drinks and snacks you love",
+                fav_empty_head: "No favorites saved yet",
+                fav_empty_desc: "Click the heart icon on any item in the menu to save it here.",
+                btn_go_menu: "Browse Menu",
+                cart_title: "Shopping Cart & Checkout",
+                cart_empty_head: "Your cart is empty",
+                cart_empty_desc: "Add delicious coffee or pastries to get started.",
+                cart_items_header: "Order Items",
+                cart_clear_all: "Clear Cart",
+                checkout_title: "Checkout Details",
+                form_name: "Full Name *",
+                form_phone: "Phone Number *",
+                form_method: "Fulfillment Method",
+                method_pickup: "Pickup",
+                method_delivery: "Delivery",
+                form_address: "Delivery Address *",
+                form_comment: "Special Instructions / Comment",
+                summary_subtotal: "Subtotal:",
+                summary_delivery: "Delivery Fee:",
+                summary_total: "Grand Total:",
+                btn_place_order: "Place Order via Telegram",
+                about_badge: "Story & Philosophy",
+                about_title: "Espresso Craft Story",
+                about_story1: "Espresso Craft opened its doors in 2021 in central Tashkent. Our mission is to share warmth, authentic atmosphere, and fine coffee.",
+                about_story2: "We roast 100% Arabica beans in small batches every week to ensure optimal freshness.",
+                contact_form_title: "Get in Touch",
+                form_message: "Message",
+                btn_send_msg: "Send Message",
+                contact_info_title: "Contact & Location",
+                address_label: "Address:",
+                phone_label: "Phone:",
+                bot_label: "Official Bot:",
+                map_placeholder: "Tashkent Map / Amir Temur Avenue",
+                btn_add_to_cart: "Add to Cart",
+                footer_about: "Premium coffee shop experience in Tashkent.",
+                footer_links: "Links",
+                footer_socials: "Social Media",
+                footer_bot: "Telegram Integration",
+                toast_added_cart: "Added to cart!",
+                toast_added_fav: "Added to favorites!",
+                toast_removed_fav: "Removed from favorites!",
+                toast_order_success: "Order sent to Telegram bot!"
+            }
+        };
+
+        /* ================= PRODUCTS DATA ================= */
+        const productsData = [
+            {
+                id: 1,
+                category: "hot",
+                featured: true,
+                price: 28000,
+                img: "https://images.unsplash.com/photo-1572442388796-11668a67e53d?auto=format&fit=crop&w=600&q=80",
+                name: { uz: "Espresso Craft Cappuccino", ru: "Классический Капучино", en: "Craft Cappuccino" },
+                desc: { uz: "Natijali 100% Arabica va ko'pirtirilgan yangi sut", ru: "Свежая арабика и пышная молочная пенка", en: "Double specialty espresso with microfoam steamed milk" }
+            },
+            {
+                id: 2,
+                category: "hot",
+                featured: true,
+                price: 32000,
+                img: "https://images.unsplash.com/photo-1534778101976-62847782c213?auto=format&fit=crop&w=600&q=80",
+                name: { uz: "Flat White Specialty", ru: "Флэт Уайт Спешелти", en: "Flat White Specialty" },
+                desc: { uz: "Ikkilangan espresso va ipakdek mayin sut", ru: "Двойной эспрессо с бархатистой структурой", en: "Double ristretto with silky microfoam" }
+            },
+            {
+                id: 3,
+                category: "signature",
+                featured: true,
+                price: 35000,
+                img: "https://images.unsplash.com/photo-1517701604599-bb29b565090c?auto=format&fit=crop&w=600&q=80",
+                name: { uz: "Karamel Raf Mualliflik", ru: "Карамельный Раф", en: "Signature Caramel Raf" },
+                desc: { uz: "Tabiiy karamel va vanil eritmasi bilan tayyorlangan raf", ru: "Нежный раф с натуральной карамелью и сливками", en: "Creamy espresso blended with real caramel & vanilla" }
+            },
+            {
+                id: 4,
+                category: "iced",
+                featured: false,
+                price: 26000,
+                img: "https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?auto=format&fit=crop&w=600&q=80",
+                name: { uz: "Muzli Americano", ru: "Айс Американо", en: "Iced Americano" },
+                desc: { uz: "Muz va toza suv bilan tetiklashtiruvchi espresso", ru: "Освежающий эспрессо со льдом", en: "Chilled espresso over crystal clear ice" }
+            },
+            {
+                id: 5,
+                category: "iced",
+                featured: false,
+                price: 34000,
+                img: "https://images.unsplash.com/photo-1461023058943-07fcbe16d735?auto=format&fit=crop&w=600&q=80",
+                name: { uz: "Bumble Coffee (Apelsin)", ru: "Бамбл Кофе", en: "Bumble Coffee (Orange)" },
+                desc: { uz: "Yangi siqilgan apelsin sharbati va espresso miksi", ru: "Свежевыжатый апельсиновый сок и эспрессо", en: "Fresh orange juice layered with double espresso" }
+            },
+            {
+                id: 6,
+                category: "tea",
+                featured: true,
+                price: 36000,
+                img: "https://images.unsplash.com/photo-1536256263959-770b48d82b0a?auto=format&fit=crop&w=600&q=80",
+                name: { uz: "Yapon Matcha Latte", ru: "Японский Матча Латте", en: "Japanese Matcha Latte" },
+                desc: { uz: "Uji premium yashil matcha choyi va bodom suti", ru: "Премиальный зеленый матч из Удзи", en: "Authentic Uji ceremonial matcha with almond milk" }
+            },
+            {
+                id: 7,
+                category: "desserts",
+                featured: false,
+                price: 32000,
+                img: "https://images.unsplash.com/photo-1571115177098-24ec42ed204d?auto=format&fit=crop&w=600&q=80",
+                name: { uz: "San Sebastian Tiramisu", ru: "Сан-Себастьян Тирамису", en: "San Sebastian Tiramisu" },
+                desc: { uz: "Pishloqli mayin kremli klassik italyan desserti", ru: "Нежнейший итальянский десерт с маскарпоне", en: "Creamy traditional mascarpone tiramisu" }
+            },
+            {
+                id: 8,
+                category: "bakery",
+                featured: true,
+                price: 22000,
+                img: "https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=600&q=80",
+                name: { uz: "Fransuz Sariyog'li Kruassan", ru: "Французский Круассан", en: "Butter French Croissant" },
+                desc: { uz: "Har kuni ertalab pishiriladigan qat-qat sariyog'li kruassan", ru: "Свежевыпеченный слоеный круассан", en: "Flaky fresh butter croissant baked daily" }
+            },
+            {
+                id: 9,
+                category: "bakery",
+                featured: false,
+                price: 28000,
+                img: "https://images.unsplash.com/photo-1608198093002-ad4e005484ec?auto=format&fit=crop&w=600&q=80",
+                name: { uz: "Shokoladli Muffins", ru: "Шоколадный Маффин", en: "Dark Chocolate Muffin" },
+                desc: { uz: "Belgiya shokoladi bo'laklari bilan tayyorlangan maffin", ru: "Маффин с кусочками бельгийского шоколада", en: "Rich muffin filled with Belgian chocolate chunks" }
+            }
+        ];
+
+        /* ================= APP STATE ================= */
+        let currentLang = localStorage.getItem('ec_lang') || 'uz';
+        let currentTheme = localStorage.getItem('ec_theme') || 'light';
+        let cart = JSON.parse(localStorage.getItem('ec_cart')) || [];
+        let favorites = JSON.parse(localStorage.getItem('ec_favs')) || [];
+        let activeCategory = 'all';
+
+        /* ================= INITIALIZATION ================= */
+        window.onload = function() {
+            const langSelect = document.getElementById('language-select');
+            if (langSelect) langSelect.value = currentLang;
+            applyTranslations();
+
+            if (currentTheme === 'dark') {
+                document.documentElement.classList.add('dark');
+                const sun = document.getElementById('theme-icon-sun');
+                const moon = document.getElementById('theme-icon-moon');
+                if (sun) sun.classList.remove('hidden');
+                if (moon) moon.classList.add('hidden');
+            }
+
+            renderHomeFeatured();
+            renderMenu();
+            updateBadges();
+            renderFavorites();
+            renderCart();
+        };
+
+        /* ================= CUSTOM MODAL (No alert()) ================= */
+        function showCustomAlert(title, body, isError = false) {
+            const modal = document.getElementById('custom-alert-modal');
+            const iconBox = document.getElementById('alert-modal-icon');
+            const titleEl = document.getElementById('alert-modal-title');
+            const bodyEl = document.getElementById('alert-modal-body');
+
+            if (isError) {
+                iconBox.className = "w-16 h-16 mx-auto rounded-full bg-red-500/10 text-red-500 flex items-center justify-center text-3xl";
+                iconBox.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+            } else {
+                iconBox.className = "w-16 h-16 mx-auto rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center text-3xl";
+                iconBox.innerHTML = '<i class="fa-solid fa-check"></i>';
+            }
+
+            titleEl.innerText = title;
+            bodyEl.innerText = body;
+            modal.classList.remove('hidden');
+        }
+
+        function closeCustomAlert() {
+            document.getElementById('custom-alert-modal').classList.add('hidden');
+        }
+
+        /* ================= THEME SYSTEM ================= */
+        function toggleTheme() {
+            const sun = document.getElementById('theme-icon-sun');
+            const moon = document.getElementById('theme-icon-moon');
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                currentTheme = 'light';
+                if (sun) sun.classList.add('hidden');
+                if (moon) moon.classList.remove('hidden');
+            } else {
+                document.documentElement.classList.add('dark');
+                currentTheme = 'dark';
+                if (sun) sun.classList.remove('hidden');
+                if (moon) moon.classList.add('hidden');
+            }
+            localStorage.setItem('ec_theme', currentTheme);
+        }
+
+        /* ================= LANGUAGE SYSTEM ================= */
+        function changeLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('ec_lang', lang);
+            applyTranslations();
+            renderHomeFeatured();
+            renderMenu();
+            renderFavorites();
+            renderCart();
+        }
+
+        function applyTranslations() {
+            const dict = translations[currentLang] || translations.uz;
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (dict[key]) {
+                    el.innerText = dict[key];
+                }
+            });
+        }
+
+        function t(key) {
+            return (translations[currentLang] && translations[currentLang][key]) || translations.uz[key] || key;
+        }
+
+        /* ================= TAB NAVIGATION ================= */
+        function switchTab(tabId) {
+            document.querySelectorAll('.page-content').forEach(p => p.classList.add('hidden'));
+            const target = document.getElementById('page-' + tabId);
+            if (target) target.classList.remove('hidden');
+
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+            const activeNav = document.getElementById('nav-' + tabId);
+            if (activeNav) activeNav.classList.add('active');
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            if (menu) menu.classList.toggle('hidden');
+        }
+
+        /* ================= TOAST NOTIFICATION SYSTEM ================= */
+        function showToast(message) {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+            const toast = document.createElement('div');
+            toast.className = "bg-espresso text-cream border border-caramel/40 px-4 py-3 rounded-2xl shadow-xl text-xs font-semibold flex items-center space-x-2 transform transition-all duration-300 opacity-0 translate-y-2 pointer-events-auto";
+            toast.innerHTML = `<i class="fa-solid fa-circle-check text-caramel"></i> <span>${message}</span>`;
+            
+            container.appendChild(toast);
+
+            setTimeout(() => toast.classList.remove('opacity-0', 'translate-y-2'), 10);
+            setTimeout(() => {
+                toast.classList.add('opacity-0', '-translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 2500);
+        }
+
+        /* ================= RENDERING HOME FEATURED ================= */
+        function renderHomeFeatured() {
+            const container = document.getElementById('home-featured-grid');
+            if (!container) return;
+            const featuredItems = productsData.filter(p => p.featured);
+            
+            container.innerHTML = featuredItems.map(item => `
+                <div class="bg-white dark:bg-espresso/50 border border-beige dark:border-espresso rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-shadow group">
+                    <div class="h-48 overflow-hidden relative cursor-pointer" onclick="openProductModal(${item.id})">
+                        <img src="${item.img}" alt="${item.name[currentLang]}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        <button onclick="event.stopPropagation(); toggleFavorite(${item.id})" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 dark:bg-black/50 flex items-center justify-center text-red-500 hover:scale-110 transition-transform">
+                            <i class="${favorites.includes(item.id) ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
+                        </button>
+                    </div>
+                    <div class="p-5 flex flex-col justify-between space-y-3">
+                        <div>
+                            <h4 class="font-bold font-serif-heading text-base group-hover:text-caramel transition-colors cursor-pointer" onclick="openProductModal(${item.id})">${item.name[currentLang]}</h4>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mt-1">${item.desc[currentLang]}</p>
+                        </div>
+                        <div class="flex items-center justify-between pt-2 border-t border-beige dark:border-espresso">
+                            <span class="font-bold text-sm text-caramel">${item.price.toLocaleString()} UZS</span>
+                            <button onclick="addToCart(${item.id})" class="p-2 bg-caramel hover:bg-caramel-hover text-white rounded-xl text-xs transition-colors">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        /* ================= MENU RENDERING & FILTERING ================= */
+        function setCategory(cat) {
+            activeCategory = cat;
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                btn.classList.remove('bg-caramel', 'text-white');
+                btn.classList.add('bg-beige', 'dark:bg-espresso', 'text-espresso', 'dark:text-cream');
+            });
+            const activeBtn = document.getElementById('cat-' + cat);
+            if (activeBtn) {
+                activeBtn.classList.remove('bg-beige', 'dark:bg-espresso', 'text-espresso', 'dark:text-cream');
+                activeBtn.classList.add('bg-caramel', 'text-white');
+            }
+            renderMenu();
+        }
+
+        function filterMenu() {
+            renderMenu();
+        }
+
+        function renderMenu() {
+            const container = document.getElementById('menu-grid');
+            if (!container) return;
+
+            const searchQuery = (document.getElementById('menu-search')?.value || '').toLowerCase();
+            const sortVal = document.getElementById('menu-sort')?.value || 'default';
+
+            let list = productsData.filter(item => {
+                const matchCat = activeCategory === 'all' || item.category === activeCategory;
+                const matchSearch = item.name[currentLang].toLowerCase().includes(searchQuery) ||
+                                    item.desc[currentLang].toLowerCase().includes(searchQuery);
+                return matchCat && matchSearch;
+            });
+
+            if (sortVal === 'low-high') {
+                list.sort((a, b) => a.price - b.price);
+            } else if (sortVal === 'high-low') {
+                list.sort((a, b) => b.price - a.price);
+            }
+
+            if (list.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-12 text-gray-500">
+                        <i class="fa-solid fa-mug-hot text-3xl mb-2 text-caramel/50"></i>
+                        <p class="text-sm">Hech narsa topilmadi</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = list.map(item => `
+                <div class="bg-white dark:bg-espresso/50 border border-beige dark:border-espresso rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-shadow group flex flex-col justify-between">
+                    <div>
+                        <div class="h-48 overflow-hidden relative cursor-pointer" onclick="openProductModal(${item.id})">
+                            <img src="${item.img}" alt="${item.name[currentLang]}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                            <button onclick="event.stopPropagation(); toggleFavorite(${item.id})" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 dark:bg-black/50 flex items-center justify-center text-red-500 hover:scale-110 transition-transform">
+                                <i class="${favorites.includes(item.id) ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
+                            </button>
+                        </div>
+                        <div class="p-5">
+                            <h4 class="font-bold font-serif-heading text-base group-hover:text-caramel transition-colors cursor-pointer" onclick="openProductModal(${item.id})">${item.name[currentLang]}</h4>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mt-1.5">${item.desc[currentLang]}</p>
+                        </div>
+                    </div>
+                    <div class="p-5 pt-0 flex items-center justify-between border-t border-beige/60 dark:border-espresso/60 mt-2">
+                        <span class="font-bold text-sm text-caramel">${item.price.toLocaleString()} UZS</span>
+                        <button onclick="addToCart(${item.id})" class="px-3 py-2 bg-caramel hover:bg-caramel-hover text-white rounded-xl text-xs font-semibold transition-colors flex items-center space-x-1">
+                            <i class="fa-solid fa-cart-plus"></i>
+                            <span>${t('btn_add_to_cart')}</span>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        /* ================= FAVORITES SYSTEM ================= */
+        function toggleFavorite(id) {
+            const index = favorites.indexOf(id);
+            if (index > -1) {
+                favorites.splice(index, 1);
+                showToast(t('toast_removed_fav'));
+            } else {
+                favorites.push(id);
+                showToast(t('toast_added_fav'));
+            }
+            localStorage.setItem('ec_favs', JSON.stringify(favorites));
+            updateBadges();
+            renderHomeFeatured();
+            renderMenu();
+            renderFavorites();
+        }
+
+        function renderFavorites() {
+            const container = document.getElementById('fav-grid');
+            const emptyState = document.getElementById('fav-empty-state');
+            if (!container || !emptyState) return;
+
+            const list = productsData.filter(p => favorites.includes(p.id));
+
+            if (list.length === 0) {
+                container.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            container.classList.remove('hidden');
+
+            container.innerHTML = list.map(item => `
+                <div class="bg-white dark:bg-espresso/50 border border-beige dark:border-espresso rounded-3xl overflow-hidden shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="h-44 overflow-hidden relative">
+                            <img src="${item.img}" alt="${item.name[currentLang]}" class="w-full h-full object-cover">
+                            <button onclick="toggleFavorite(${item.id})" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 dark:bg-black/50 flex items-center justify-center text-red-500">
+                                <i class="fa-solid fa-heart text-red-500"></i>
+                            </button>
+                        </div>
+                        <div class="p-5">
+                            <h4 class="font-bold font-serif-heading text-base">${item.name[currentLang]}</h4>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mt-1">${item.desc[currentLang]}</p>
+                        </div>
+                    </div>
+                    <div class="p-5 pt-0 flex items-center justify-between">
+                        <span class="font-bold text-sm text-caramel">${item.price.toLocaleString()} UZS</span>
+                        <button onclick="addToCart(${item.id})" class="px-3 py-2 bg-caramel text-white rounded-xl text-xs font-semibold hover:bg-caramel-hover transition-colors">
+                            ${t('btn_add_to_cart')}
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        /* ================= CART SYSTEM ================= */
+        function addToCart(id) {
+            const existing = cart.find(item => item.id === id);
+            if (existing) {
+                existing.quantity += 1;
+            } else {
+                cart.push({ id: id, quantity: 1 });
+            }
+            localStorage.setItem('ec_cart', JSON.stringify(cart));
+            updateBadges();
+            renderCart();
+            showToast(t('toast_added_cart'));
+        }
+
+        function updateCartQty(id, delta) {
+            const index = cart.findIndex(item => item.id === id);
+            if (index > -1) {
+                cart[index].quantity += delta;
+                if (cart[index].quantity <= 0) {
+                    cart.splice(index, 1);
+                }
+            }
+            localStorage.setItem('ec_cart', JSON.stringify(cart));
+            updateBadges();
+            renderCart();
+        }
+
+        function removeFromCart(id) {
+            cart = cart.filter(item => item.id !== id);
+            localStorage.setItem('ec_cart', JSON.stringify(cart));
+            updateBadges();
+            renderCart();
+        }
+
+        function clearCart() {
+            cart = [];
+            localStorage.setItem('ec_cart', JSON.stringify(cart));
+            updateBadges();
+            renderCart();
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cart-items-container');
+            const wrapper = document.getElementById('cart-content-wrapper');
+            const emptyState = document.getElementById('cart-empty-state');
+            if (!container || !wrapper || !emptyState) return;
+
+            if (cart.length === 0) {
+                wrapper.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            wrapper.classList.remove('hidden');
+
+            let subtotal = 0;
+
+            container.innerHTML = cart.map(cartItem => {
+                const product = productsData.find(p => p.id === cartItem.id);
+                if (!product) return '';
+                const itemTotal = product.price * cartItem.quantity;
+                subtotal += itemTotal;
+
+                return `
+                    <div class="flex items-center justify-between p-4 bg-white dark:bg-espresso/50 border border-beige dark:border-espresso rounded-2xl">
+                        <div class="flex items-center space-x-3">
+                            <img src="${product.img}" class="w-14 h-14 rounded-xl object-cover">
+                            <div>
+                                <h4 class="font-bold text-sm">${product.name[currentLang]}</h4>
+                                <span class="text-xs text-caramel font-semibold">${product.price.toLocaleString()} UZS</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <div class="flex items-center space-x-2 bg-beige dark:bg-espresso rounded-lg px-2 py-1">
+                                <button onclick="updateCartQty(${product.id}, -1)" class="w-5 h-5 flex items-center justify-center font-bold text-xs hover:text-caramel">-</button>
+                                <span class="text-xs font-bold w-4 text-center">${cartItem.quantity}</span>
+                                <button onclick="updateCartQty(${product.id}, 1)" class="w-5 h-5 flex items-center justify-center font-bold text-xs hover:text-caramel">+</button>
+                            </div>
+                            <button onclick="removeFromCart(${product.id})" class="text-red-500 hover:text-red-700 text-xs">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            const subEl = document.getElementById('summary-subtotal');
+            const totEl = document.getElementById('summary-total');
+            if (subEl) subEl.innerText = subtotal.toLocaleString() + ' UZS';
+            if (totEl) totEl.innerText = subtotal.toLocaleString() + ' UZS';
+        }
+
+        function updateBadges() {
+            const totalCartCount = cart.reduce((acc, curr) => acc + curr.quantity, 0);
+            const favCount = favorites.length;
+
+            const cBadge = document.getElementById('cart-badge');
+            const cBadgeMobile = document.getElementById('cart-badge-mobile');
+            const fBadge = document.getElementById('fav-badge');
+            const fBadgeMobile = document.getElementById('fav-badge-mobile');
+
+            if (cBadge) {
+                cBadge.innerText = totalCartCount;
+                cBadge.classList.toggle('hidden', totalCartCount === 0);
+            }
+            if (cBadgeMobile) cBadgeMobile.innerText = totalCartCount;
+
+            if (fBadge) {
+                fBadge.innerText = favCount;
+                fBadge.classList.toggle('hidden', favCount === 0);
+            }
+            if (fBadgeMobile) fBadgeMobile.innerText = favCount;
+        }
+
+        function toggleAddressField(show) {
+            const addr = document.getElementById('address-container');
+            const addrInput = document.getElementById('cust-address');
+            if (!addr || !addrInput) return;
+            if (show) {
+                addr.classList.remove('hidden');
+                addrInput.setAttribute('required', 'true');
+            } else {
+                addr.classList.add('hidden');
+                addrInput.removeAttribute('required');
+            }
+        }
+
+        /* ================= CHECKOUT & DIRECT TELEGRAM BOT API DISPATCH ================= */
+        async function handleCheckout(e) {
+            e.preventDefault();
+            if (cart.length === 0) return;
+
+            const name = document.getElementById('cust-name').value.trim();
+            const phone = document.getElementById('cust-phone').value.trim();
+            const method = document.querySelector('input[name="delivery_method"]:checked')?.value || 'pickup';
+            const address = document.getElementById('cust-address')?.value.trim() || '';
+            const comment = document.getElementById('cust-comment')?.value.trim() || '';
+
+            let total = 0;
+            const itemLines = cart.map(ci => {
+                const p = productsData.find(item => item.id === ci.id);
+                const linePrice = p.price * ci.quantity;
+                total += linePrice;
+                return `• <b>${p.name[currentLang]}</b> × ${ci.quantity} (${linePrice.toLocaleString()} UZS)`;
+            }).join('\n');
+
+            const orderId = 'ORD-' + Math.floor(1000 + Math.random() * 9000);
+            const dateStr = new Date().toLocaleString('ru-RU', { timeZone: 'Asia/Tashkent' });
+
+            const htmlMessage = 
+`☕ <b>NEW COFFEE SHOP ORDER</b>
+<b>Order ID:</b> #${orderId}
+
+👤 <b>CUSTOMER:</b>
+<b>Name:</b> ${name}
+<b>Phone:</b> ${phone}
+
+🛒 <b>ORDER:</b>
+${itemLines}
+
+🚚 <b>DELIVERY:</b>
+<b>Method:</b> ${method === 'pickup' ? '🏃 Pickup' : '🚗 Delivery'}
+${method === 'delivery' ? `<b>Address:</b> ${address}` : ''}
+
+💬 <b>COMMENT:</b>
+${comment || 'None'}
+
+💰 <b>TOTAL:</b> ${total.toLocaleString()} UZS
+⏰ <b>Date & Time:</b> ${dateStr}`;
+
+            const btn = document.getElementById('btn-submit-order');
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>Yuborilmoqda...</span>`;
+
+            const BOT_TOKEN = "9266712454:AAFpD0Ga5kzgmA0oTBLxDYPRC5dtNJXsnYs";
+            const ADMIN_CHAT_ID = "1838847684";
+
+            try {
+                const tgUrl = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+                const response = await fetch(tgUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: ADMIN_CHAT_ID,
+                        text: htmlMessage,
+                        parse_mode: 'HTML'
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.ok) {
+                    clearCart();
+                    document.getElementById('checkout-form').reset();
+                    toggleAddressField(false);
+                    showToast(t('toast_order_success'));
+                    showCustomAlert(
+                        '✅ Buyurtma qabul qilindi!',
+                        `Order ID: #${orderId}\n\nBuyurtmangiz Telegram botingizga (@coffeeshopdemoday_bot) muvaffaqiyatli yuborildi!`
+                    );
+                } else {
+                    showCustomAlert(
+                        '⚠️ Telegram Xatoligi',
+                        `Telegram API javobi: ${result.description || 'Xatolik yuz berdi'}\n\nIltimos, Telegramda @coffeeshopdemoday_bot ga /start yuborganingizni tekshiring.`,
+                        true
+                    );
+                }
+            } catch (err) {
+                console.error(err);
+                showCustomAlert('❌ Tarmoq xatoligi', 'Telegram serveriga ulanib bo‘lmadi.', true);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-paper-plane fa-solid text-sm"></i> <span>${t('btn_place_order')}</span>`;
+            }
+        }
+
+        /* ================= PRODUCT MODAL ================= */
+        function openProductModal(id) {
+            const item = productsData.find(p => p.id === id);
+            if (!item) return;
+
+            document.getElementById('modal-img').src = item.img;
+            document.getElementById('modal-cat').innerText = item.category;
+            document.getElementById('modal-title').innerText = item.name[currentLang];
+            document.getElementById('modal-price').innerText = item.price.toLocaleString() + ' UZS';
+            document.getElementById('modal-desc').innerText = item.desc[currentLang];
+            
+            const addBtn = document.getElementById('modal-add-btn');
+            addBtn.onclick = () => {
+                addToCart(item.id);
+                closeProductModal();
+            };
+
+            document.getElementById('product-modal').classList.remove('hidden');
+        }
+
+        function closeProductModal() {
+            document.getElementById('product-modal').classList.add('hidden');
+        }
+
+        function handleContactSubmit(e) {
+            e.preventDefault();
+            e.target.reset();
+            showCustomAlert('✅ Xabar yuborildi!', 'Murojaatingiz uchun rahmat! Tez orada siz bilan bog‘lanamiz.');
+        }
+    </script>
+</body>
+</html>
